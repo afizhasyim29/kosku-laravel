@@ -1,12 +1,14 @@
 <?php
 
-use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\KoskuPageController;
+use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PesananLayananController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ScanController;
@@ -15,7 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::middleware('guest')->group(function () {
-    Route::post('/auth/google/callback', [GoogleController::class, 'credential'])
+    Route::get('/auth/google/redirect', [GoogleController::class, 'redirect'])
+        ->middleware('throttle:10,1')
+        ->name('google.redirect');
+    Route::get('/auth/google/callback', [GoogleController::class, 'callback'])
         ->middleware('throttle:10,1')
         ->name('google.callback');
 });
@@ -25,6 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 
     Route::get('/katalog', [RoomController::class, 'index'])->name('rooms.index');
+    Route::post('/laporan/{laporan}/selesai', [LaporanController::class, 'complete'])
+        ->name('reports.complete');
+    Route::post('/pesanan-layanan/{pesananLayanan}/status', [PesananLayananController::class, 'updateStatus'])
+        ->name('service-orders.status');
     Route::get('/kamar/{kamar}', [RoomController::class, 'show'])->name('rooms.show');
     Route::get('/checkout/{kamar}', fn ($kamar) => redirect()->route('booking.create', ['kamar_id' => $kamar]))
         ->name('checkout.show');

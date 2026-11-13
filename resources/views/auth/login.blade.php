@@ -33,36 +33,17 @@
                 </div>
             @endif
 
-            @if (filled(config('services.google.client_id')))
-                <form id="google-login-form" method="POST" action="{{ route('google.callback', absolute: false) }}" class="mb-5">
-                    @csrf
-                    <input id="google-credential" type="hidden" name="credential">
-                    <div id="google-signin-button" class="flex justify-center"></div>
-                </form>
-
-                <script>
-                    function handleGoogleCredential(response) {
-                        document.getElementById('google-credential').value = response.credential;
-                        document.getElementById('google-login-form').submit();
-                    }
-
-                    function initializeGoogleSignIn() {
-                        google.accounts.id.initialize({
-                            client_id: @json(config('services.google.client_id')),
-                            callback: handleGoogleCredential,
-                            auto_select: false
-                        });
-
-                        google.accounts.id.renderButton(
-                            document.getElementById('google-signin-button'),
-                            { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: 340 }
-                        );
-                    }
-                </script>
-                <script src="https://accounts.google.com/gsi/client" async defer onload="initializeGoogleSignIn()"></script>
+            @if (filled(config('services.google.client_id'))
+                && filled(config('services.google.client_secret'))
+                && filled(config('services.google.redirect')))
+                <a href="{{ route('google.redirect', absolute: false) }}"
+                   class="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-3 font-semibold text-gray-700 transition hover:bg-gray-50">
+                    <i class="fa-brands fa-google text-red-500"></i>
+                    Lanjutkan dengan Google
+                </a>
             @else
                 <div role="status" class="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-                    Login Google belum dikonfigurasi. Isi GOOGLE_CLIENT_ID di file .env.
+                    Login Google belum dikonfigurasi. Periksa GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, dan GOOGLE_REDIRECT_URI di file .env.
                 </div>
             @endif
 
